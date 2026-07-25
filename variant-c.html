@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Riccardo Cereghino — Platform &amp; Infrastructure Engineer</title>
+<meta name="description" content="Platform and infrastructure engineer working in Kubernetes and GitOps, currently writing about running a platform as a team of one.">
+<link rel="canonical" href="https://riccardocereghino.github.io/">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b0b0a">
+
+<!-- Open Graph: this is what LinkedIn, Slack and iMessage read for link previews. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Riccardo Cereghino">
+<meta property="og:title" content="Riccardo Cereghino — Platform &amp; Infrastructure Engineer">
+<meta property="og:description" content="Platform and infrastructure engineer working in Kubernetes and GitOps, currently writing about running a platform as a team of one.">
+<meta property="og:url" content="https://riccardocereghino.github.io/">
+<meta property="og:locale" content="en_GB">
+<!--
+  Optional: LinkedIn only shows a large image card if og:image is an absolute URL
+  to a real raster file (PNG/JPG, 1200x630). A data: URI or inline SVG will not
+  work there. Drop an og.png next to this file and uncomment these two lines:
+
+  <meta property="og:image" content="https://riccardocereghino.github.io/og.png">
+  <meta property="og:image:alt" content="Riccardo Cereghino — Platform & Infrastructure Engineer">
+
+  Without it you still get a correct title + description preview.
+-->
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B0B0A'/%3E%3Cpath d='M9 11l5 5-5 5' fill='none' stroke='%23F0B357' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Crect x='17' y='19.2' width='7' height='2.6' rx='1.3' fill='%23F0B357'/%3E%3C/svg%3E">
+
+<style>
+  :root{
+    --bg:#0b0b0a;
+    --fg:#ece8e1;
+    --muted:#b3aca2;
+    --link:#d9d3c9;
+    --rule:#252320;
+    --accent:#f0b357;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    min-height:100vh;
+    min-height:100svh;
+    display:flex;
+    align-items:center;
+    padding:clamp(1.5rem,6vw,5rem);
+    overflow-x:hidden;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  /* ---- background: static film grain + one slow scanline sweep ----
+     The turbulence is rasterised once and never animated; animating an SVG
+     filter every frame is exactly what would pin the CPU. ---- */
+  .grain{
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  /* Fine static scanlines. Free — nothing moves. */
+  .lines{
+    position:fixed;inset:0;z-index:1;pointer-events:none;
+    opacity:.5;
+    background-image:repeating-linear-gradient(180deg,rgba(255,255,255,.014) 0 1px,transparent 1px 3px);
+  }
+  /* The single moving element on the page. */
+  .scan{
+    position:fixed;top:0;left:0;right:0;z-index:2;pointer-events:none;
+    height:36vh;
+    background:linear-gradient(180deg,
+      rgba(240,179,87,0) 0%,
+      rgba(240,179,87,.045) 46%,
+      rgba(255,247,235,.03) 50%,
+      rgba(240,179,87,.035) 54%,
+      rgba(240,179,87,0) 100%);
+    will-change:transform;
+    animation:sweep 17s linear infinite;
+  }
+  @keyframes sweep{
+    from{transform:translate3d(0,-38vh,0)}
+    to{transform:translate3d(0,102vh,0)}
+  }
+
+  main{position:relative;z-index:3;max-width:60ch}
+
+  .eyebrow{
+    display:flex;
+    align-items:center;
+    gap:.7rem;
+    margin:0 0 1.5rem;
+    font-size:.75rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--accent);
+  }
+  .eyebrow::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--rule);
+  }
+
+  h1{
+    /* 11ch forces the break after "RICCARDO" at every width, so the two-line
+       lockup is deliberate rather than a side effect of the viewport. */
+    max-width:11ch;
+    margin:0;
+    font-size:clamp(1.5rem,7.2vw,3.5rem);
+    font-weight:700;
+    letter-spacing:.055em;
+    line-height:1.14;
+    text-transform:uppercase;
+    color:var(--fg);
+  }
+
+  .tagline{
+    margin:1.5rem 0 0;
+    max-width:46ch;
+    font-size:clamp(.875rem,2.6vw,1.0625rem);
+    line-height:1.75;
+    color:var(--muted);
+    text-wrap:pretty;
+  }
+  .cursor{
+    display:inline-block;
+    width:.5em;height:1.05em;
+    margin-left:.28em;
+    vertical-align:-.18em;
+    background:var(--accent);
+    animation:blink 1.15s step-end infinite;
+  }
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+  nav{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    width:100%;
+    max-width:24rem;
+    margin-top:2.25rem;
+    border-top:1px solid var(--rule);
+  }
+  nav a{
+    display:flex;
+    align-items:center;
+    gap:.75rem;
+    width:100%;
+    min-height:44px;
+    padding:.85rem 0;
+    color:var(--link);
+    font-size:.9375rem;
+    text-decoration:none;
+    border-bottom:1px solid var(--rule);
+    transition:color .18s ease,border-color .18s ease;
+  }
+  nav a svg{width:18px;height:18px;flex:none;color:var(--accent)}
+  nav a .arrow{margin-left:auto;color:var(--accent);opacity:.6;transition:transform .18s ease,opacity .18s ease}
+  nav a:hover,nav a:focus-visible{color:var(--accent);border-bottom-color:var(--accent)}
+  nav a:hover .arrow,nav a:focus-visible .arrow{opacity:1;transform:translate(3px,-3px)}
+  nav a:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+
+  @media (prefers-reduced-motion:reduce){
+    .scan{animation:none}
+    .cursor{animation:none}
+    nav a,nav a .arrow{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="lines" aria-hidden="true"></div>
+<div class="scan" aria-hidden="true"></div>
+
+<main>
+  <p class="eyebrow" aria-hidden="true">Platform&nbsp;/&nbsp;Infrastructure</p>
+
+  <h1>Riccardo Cereghino</h1>
+
+  <p class="tagline">Platform and infrastructure engineer working in Kubernetes and GitOps, currently writing about running a platform as a team of one.<span class="cursor" aria-hidden="true"></span></p>
+
+  <nav aria-label="Profiles">
+    <a href="https://dev.to/riccardo_cereghino" rel="me noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x=".85" y="4.85" width="22.3" height="14.3" rx="3.2" fill="none" stroke="currentColor" stroke-width="1.5"/><text x="12" y="15.35" textLength="14.5" lengthAdjust="spacingAndGlyphs" text-anchor="middle" font-size="7.4" font-weight="700" fill="currentColor">DEV</text></svg>
+      dev.to
+      <span class="arrow" aria-hidden="true">↗</span>
+    </a>
+    <a href="https://github.com/RiccardoCereghino" rel="me noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.3 2.8.1 3.2.9.8 1.3 1.9 1.3 3.1 0 4.7-2.8 5.7-5.5 6 .4.5.7 1.1.7 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+      GitHub
+      <span class="arrow" aria-hidden="true">↗</span>
+    </a>
+    <a href="https://www.linkedin.com/in/riccardo-cereghino" rel="me noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.04a3.75 3.75 0 0 1 3.38-1.85c3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zm1.78 13.02H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
+      LinkedIn
+      <span class="arrow" aria-hidden="true">↗</span>
+    </a>
+  </nav>
+</main>
+
+</body>
+</html>

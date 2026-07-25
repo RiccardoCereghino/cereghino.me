@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Riccardo Cereghino — Platform &amp; Infrastructure Engineer</title>
+<meta name="description" content="Platform and infrastructure engineer working in Kubernetes and GitOps, currently writing about running a platform as a team of one.">
+<link rel="canonical" href="https://riccardocereghino.github.io/">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0b0d">
+
+<!-- Open Graph: this is what LinkedIn, Slack and iMessage read for link previews. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Riccardo Cereghino">
+<meta property="og:title" content="Riccardo Cereghino — Platform &amp; Infrastructure Engineer">
+<meta property="og:description" content="Platform and infrastructure engineer working in Kubernetes and GitOps, currently writing about running a platform as a team of one.">
+<meta property="og:url" content="https://riccardocereghino.github.io/">
+<meta property="og:locale" content="en_GB">
+<!--
+  Optional: LinkedIn only shows a large image card if og:image is an absolute URL
+  to a real raster file (PNG/JPG, 1200x630). A data: URI or inline SVG will not
+  work there. Drop an og.png next to this file and uncomment these two lines:
+
+  <meta property="og:image" content="https://riccardocereghino.github.io/og.png">
+  <meta property="og:image:alt" content="Riccardo Cereghino — Platform & Infrastructure Engineer">
+
+  Without it you still get a correct title + description preview.
+-->
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230A0B0D'/%3E%3Cpath d='M9 11l5 5-5 5' fill='none' stroke='%235EE0C8' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Crect x='17' y='19.2' width='7' height='2.6' rx='1.3' fill='%235EE0C8'/%3E%3C/svg%3E">
+
+<style>
+  :root{
+    --bg:#0a0b0d;
+    --dot:#2e3542;
+    --fg:#e8ebee;
+    --muted:#a3aeb9;
+    --link:#cfd8e0;
+    --rule:#20252d;
+    --accent:#5ee0c8;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    min-height:100vh;
+    min-height:100svh;
+    display:flex;
+    align-items:center;
+    padding:clamp(1.5rem,6vw,5rem);
+    overflow-x:hidden;
+    background:var(--bg);
+    color:var(--fg);
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  /* ---- background: two dot grids drifting against each other ---- */
+  .bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+  .bg::before,.bg::after{
+    content:"";
+    position:absolute;
+    top:-50%;left:-50%;
+    width:200%;height:200%;
+    background-image:radial-gradient(var(--dot) 1px,transparent 1.7px);
+    will-change:transform;
+  }
+  /* Each grid travels an exact multiple of its own cell size, so the loop is seamless. */
+  .bg::before{background-size:26px 26px;animation:driftA 60s linear infinite}
+  .bg::after{background-size:34px 34px;opacity:.55;animation:driftB 104s linear infinite}
+  @keyframes driftA{from{transform:translate3d(0,0,0)}to{transform:translate3d(130px,130px,0)}}
+  @keyframes driftB{from{transform:translate3d(0,0,0)}to{transform:translate3d(-136px,136px,0)}}
+
+  /* Darkens hard right under the text, lets the grid breathe in a ring around it,
+     then falls back to flat base at the edges. */
+  .veil{
+    position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:
+      radial-gradient(ellipse 46% 42% at 30% 50%,rgba(10,11,13,.82) 0%,rgba(10,11,13,0) 100%),
+      radial-gradient(ellipse 88% 78% at 34% 48%,rgba(10,11,13,0) 38%,var(--bg) 92%);
+  }
+
+  main{position:relative;z-index:2;max-width:58ch}
+
+  .mark{
+    width:2rem;height:2px;
+    background:var(--accent);
+    border-radius:2px;
+    margin-bottom:1.75rem;
+  }
+
+  h1{
+    /* 10ch forces the break after "Riccardo" at every width, so the two-line
+       lockup is deliberate rather than a side effect of the viewport. */
+    max-width:10ch;
+    margin:0;
+    font-size:clamp(2rem,8.6vw,4rem);
+    font-weight:600;
+    letter-spacing:-.045em;
+    line-height:1.05;
+    color:var(--fg);
+  }
+
+  .tagline{
+    margin:1.35rem 0 0;
+    max-width:44ch;
+    font-size:clamp(.875rem,2.6vw,1.0625rem);
+    line-height:1.75;
+    color:var(--muted);
+    text-wrap:pretty;
+  }
+
+  nav{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.25rem 1.75rem;
+    margin-top:2.25rem;
+    padding-top:1.5rem;
+    border-top:1px solid var(--rule);
+  }
+  nav a{
+    display:inline-flex;
+    align-items:center;
+    gap:.6rem;
+    min-height:44px;
+    padding:.55rem 0;
+    color:var(--link);
+    font-size:.9375rem;
+    text-decoration:none;
+    border-bottom:1px solid var(--rule);
+    transition:color .18s ease,border-color .18s ease;
+  }
+  nav a svg{width:18px;height:18px;flex:none}
+  nav a:hover,nav a:focus-visible{color:var(--accent);border-bottom-color:var(--accent)}
+  nav a:focus-visible{outline:2px solid var(--accent);outline-offset:5px;border-radius:2px}
+
+  /* On narrow screens the text fills the width, so the darkened pool has to
+     span it rather than sitting in a column on the left. */
+  @media (max-width:40rem){
+    .veil{
+      background:
+        radial-gradient(ellipse 125% 34% at 50% 50%,rgba(10,11,13,.88) 0%,rgba(10,11,13,0) 100%),
+        radial-gradient(ellipse 150% 100% at 50% 50%,rgba(10,11,13,0) 42%,var(--bg) 98%);
+    }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .bg::before,.bg::after{animation:none}
+    nav a{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true"></div>
+<div class="veil" aria-hidden="true"></div>
+
+<main>
+  <div class="mark" aria-hidden="true"></div>
+
+  <h1>Riccardo Cereghino</h1>
+
+  <p class="tagline">Platform and infrastructure engineer working in Kubernetes and GitOps, currently writing about running a platform as a team of one.</p>
+
+  <nav aria-label="Profiles">
+    <a href="https://dev.to/riccardo_cereghino" rel="me noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x=".85" y="4.85" width="22.3" height="14.3" rx="3.2" fill="none" stroke="currentColor" stroke-width="1.5"/><text x="12" y="15.35" textLength="14.5" lengthAdjust="spacingAndGlyphs" text-anchor="middle" font-size="7.4" font-weight="700" fill="currentColor">DEV</text></svg>
+      dev.to
+    </a>
+    <a href="https://github.com/RiccardoCereghino" rel="me noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.3 2.8.1 3.2.9.8 1.3 1.9 1.3 3.1 0 4.7-2.8 5.7-5.5 6 .4.5.7 1.1.7 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+      GitHub
+    </a>
+    <a href="https://www.linkedin.com/in/riccardo-cereghino" rel="me noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.04a3.75 3.75 0 0 1 3.38-1.85c3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zm1.78 13.02H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
+      LinkedIn
+    </a>
+  </nav>
+</main>
+
+</body>
+</html>
