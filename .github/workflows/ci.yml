@@ -1,0 +1,132 @@
+name: ci
+
+# The page is one self-contained file with no build step: pushing to main IS the
+# deploy (legacy Pages, source main:/). So there is no deploy job here — only
+# guards. Do not add a Pages build workflow without reading the note at the
+# bottom of this file first.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  spec:
+    name: spec invariants + size budget
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check locked spec properties
+        run: python3 .github/scripts/check_spec.py
+
+      # Executes the uptime IIFE lifted straight out of index.html against a
+      # stubbed clock, so it tests the shipped code at real leap boundaries.
+      # No browser, fully deterministic. Worth its own step: a days/365.25
+      # approximation renders an identical string on all but 15 days in 30
+      # years, so checking "today" in the render job proves nothing.
+      - name: Check the uptime arithmetic
+        run: node .github/scripts/check_uptime.mjs
+
+  html:
+    name: html validity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # htmlvalidate.json disables two rules from the recommended preset. The
+      # config file is JSON so it cannot carry comments — the reasons live here:
+      #   no-inline-style: the per-row `animation-delay` stagger and the palette
+      #     swatch backgrounds are per-element data, not shared styling.
+      #   doctype-style:   `<!doctype html>` is intentionally lowercase.
+      # Everything else in the preset stays on; verified to still catch
+      # unclosed tags and bogus attributes.
+      - name: Validate markup
+        run: npx --yes html-validate@8.24.2 --config .github/htmlvalidate.json index.html
+
+  render:
+    name: render guards (real Chrome)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22' # check_render.mjs uses the built-in WebSocket
+
+      - name: Resolve a Chrome binary
+        id: chrome
+        run: |
+          for c in google-chrome google-chrome-stable chromium chromium-browser; do
+            if command -v "$c" >/dev/null 2>&1; then
+              echo "bin=$c" >> "$GITHUB_OUTPUT"
+              "$c" --version
+              exit 0
+            fi
+          done
+          echo "No Chrome on the runner image; installing chromium." >&2
+          sudo apt-get update -qq && sudo apt-get install -y -qq chromium-browser
+          echo "bin=chromium-browser" >> "$GITHUB_OUTPUT"
+
+      - name: Serve the site
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 &
+          for _ in $(seq 1 30); do
+            curl -sf http://127.0.0.1:8765/index.html >/dev/null && break
+            sleep 0.3
+          done
+          curl -sf -o /dev/null http://127.0.0.1:8765/index.html
+
+      - name: Start Chrome with the DevTools Protocol
+        run: |
+          ${{ steps.chrome.outputs.bin }} \
+            --headless=new --disable-gpu --no-sandbox --no-first-run \
+            --no-default-browser-check --hide-scrollbars \
+            --user-data-dir="${RUNNER_TEMP}/chrome-profile" \
+            --remote-debugging-port=9222 about:blank &
+          for _ in $(seq 1 40); do
+            curl -sf http://127.0.0.1:9222/json/version >/dev/null && break
+            sleep 0.3
+          done
+          curl -sf http://127.0.0.1:9222/json/version
+
+      - name: Run render guards
+        run: node .github/scripts/check_render.mjs http://127.0.0.1:8765/index.html "${RUNNER_TEMP}/shots"
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: render-screenshots
+          path: ${{ runner.temp }}/shots
+          if-no-files-found: warn
+          retention-days: 14
+
+# ---------------------------------------------------------------------------
+# Deliberately absent, so nobody has to rediscover why:
+#
+# * No minification. Measured: minifying saves 1,054 bytes gzipped (~0.66 ms on
+#   4G) and does not change the TCP segment count. GitHub Pages already sets
+#   content-encoding: gzip, and the page has zero subresources, so load time is
+#   RTT-bound, not payload-bound. Not worth losing the readable single file.
+#
+# * No Pages build/deploy workflow. This repo uses the *legacy* Pages build
+#   type, and RiccardoCereghino/edge#1 manages its Pages config as OpenTofu
+#   (github_repository … pages). Switching to the Actions build type here would
+#   surface as state drift there. Coordinate before changing it.
+#
+# * No Lighthouse job. A single inline-everything file scores 100 without help;
+#   it would burn minutes for no signal.
+# ---------------------------------------------------------------------------
