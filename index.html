@@ -59,9 +59,11 @@
     text-rendering:optimizeLegibility;
   }
 
-  /* ---- background: static film grain + one slow scanline sweep ----
+  /* ---- background: static film grain only ----
      The turbulence is rasterised once and never animated; animating an SVG
-     filter every frame is exactly what would pin the CPU. ---- */
+     filter every frame is exactly what would pin the CPU.
+     There is deliberately no sweeping highlight: v1 had one and it read as a
+     distracting yellow line crawling down the page. ---- */
   .grain{
     position:fixed;inset:0;z-index:0;pointer-events:none;
     opacity:.05;
@@ -72,23 +74,6 @@
     position:fixed;inset:0;z-index:1;pointer-events:none;
     opacity:.5;
     background-image:repeating-linear-gradient(180deg,rgba(255,255,255,.014) 0 1px,transparent 1px 3px);
-  }
-  /* The one ambient moving element, GPU-composited. */
-  .scan{
-    position:fixed;top:0;left:0;right:0;z-index:2;pointer-events:none;
-    height:36vh;
-    background:linear-gradient(180deg,
-      rgb(var(--accent-rgb)/0) 0%,
-      rgb(var(--accent-rgb)/.05) 46%,
-      rgba(255,255,255,.028) 50%,
-      rgb(var(--accent-rgb)/.038) 54%,
-      rgb(var(--accent-rgb)/0) 100%);
-    will-change:transform;
-    animation:sweep 17s linear infinite;
-  }
-  @keyframes sweep{
-    from{transform:translate3d(0,-38vh,0)}
-    to{transform:translate3d(0,102vh,0)}
   }
 
   main{position:relative;z-index:3;width:min(100%,58rem)}
@@ -188,7 +173,6 @@
   }
 
   @media (prefers-reduced-motion:reduce){
-    .scan{animation:none}
     .cursor{animation:none}
     .cmd{animation:none;width:8ch}
     .pr{animation:none;opacity:1}
@@ -201,7 +185,6 @@
 
 <div class="grain" aria-hidden="true"></div>
 <div class="lines" aria-hidden="true"></div>
-<div class="scan" aria-hidden="true"></div>
 
 <main>
   <p class="prompt">
