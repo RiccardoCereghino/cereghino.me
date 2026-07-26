@@ -219,10 +219,6 @@ for (const s of SCENARIOS) {
         r.logoRowGaps.every(g => Math.abs(g - parseFloat(r.logoLineHeight)) <= 1),
         `gaps ${r.logoRowGaps.join(',')} vs line-height ${r.logoLineHeight}`);
 
-      // --- cursor is slow enough to be restful ---
-      check(s.name, 'cursor blink is not fast',
-        parseFloat(r.cursorDuration) >= 1.5, r.cursorDuration);
-
       // --- name is the highest-contrast text ---
       check(s.name, 'name renders pure white', r.nameColor === 'rgb(255, 255, 255)', r.nameColor);
 
@@ -252,6 +248,11 @@ for (const s of SCENARIOS) {
       } else {
         check(s.name, 'typing animation present', r.cmdAnim === 'type', r.cmdAnim);
         check(s.name, 'cursor blinks', r.cursorAnim === 'blink', r.cursorAnim);
+        // Only meaningful while the cursor actually animates. Under reduced
+        // motion `animation:none` reports a 0s duration, which is correct
+        // behaviour, not a fast blink — so this belongs here, not above.
+        check(s.name, 'cursor blink is not fast',
+          parseFloat(r.cursorDuration) >= 1.5, r.cursorDuration);
         check(s.name, 'all rows revealed after settle', r.rowsMinOpacity === 1, `min opacity ${r.rowsMinOpacity}`);
       }
 
