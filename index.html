@@ -59,21 +59,19 @@
     text-rendering:optimizeLegibility;
   }
 
-  /* ---- background: static film grain only ----
+  /* ---- background: static film grain, and nothing else ----
      The turbulence is rasterised once and never animated; animating an SVG
      filter every frame is exactly what would pin the CPU.
-     There is deliberately no sweeping highlight: v1 had one and it read as a
-     distracting yellow line crawling down the page. ---- */
+     Two things v1 had and v2 deliberately does not:
+       - a sweeping accent highlight, which read as a yellow line crawling
+         down the page;
+       - a 1px scanline overlay, which is exactly the kind of fine repeating
+         high-contrast pattern that astigmatism turns into a smeared mess.
+     Do not reintroduce either. ---- */
   .grain{
     position:fixed;inset:0;z-index:0;pointer-events:none;
     opacity:.05;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-  /* Fine static scanlines. Free — nothing moves. */
-  .lines{
-    position:fixed;inset:0;z-index:1;pointer-events:none;
-    opacity:.5;
-    background-image:repeating-linear-gradient(180deg,rgba(255,255,255,.014) 0 1px,transparent 1px 3px);
   }
 
   main{position:relative;z-index:3;width:min(100%,58rem)}
@@ -108,9 +106,13 @@
     margin-left:.15em;
     vertical-align:-.18em;
     background:var(--accent);
-    animation:blink .5s step-end infinite;
+    /* xterm's documented defaults: cursorOnTime 600ms, cursorOffTime 300ms.
+       Asymmetric on purpose — the block is present two thirds of the cycle, so
+       there is a third less flicker than a 50/50 blink. step-end keeps the
+       edges hard, the way a real terminal cursor behaves; no fading. */
+    animation:blink .9s step-end infinite;
   }
-  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+  @keyframes blink{0%{opacity:1}66.6%{opacity:0}}
   @keyframes reveal{from{opacity:0}50%,to{opacity:1}}
   /* terminal print: each line snaps in on its own inline delay, rebased onto
      the 600ms type — whole body lands by 1.32s */
@@ -184,7 +186,6 @@
 <body>
 
 <div class="grain" aria-hidden="true"></div>
-<div class="lines" aria-hidden="true"></div>
 
 <main>
   <p class="prompt">
@@ -205,18 +206,18 @@
 
     <div class="info">
       <dl>
-        <div class="pr" style="animation-delay:.66s"><dt>Name</dt><dd><h1>Riccardo Cereghino</h1></dd></div>
-        <div class="pr" style="animation-delay:.72s"><dt>Location</dt><dd>Genoa, Italy</dd></div>
-        <div class="pr" style="animation-delay:.78s"><dt>Role</dt><dd>Platform &amp; Infrastructure Engineer</dd></div>
-        <div class="pr" style="animation-delay:.84s"><dt>Stack</dt><dd>Kubernetes · GitOps · Azure</dd></div>
-        <div class="pr" style="animation-delay:.9s"><dt>Languages</dt><dd>Go · Python · Bash</dd></div>
-        <div class="pr" style="animation-delay:.96s"><dt>Packages</dt><dd><a href="https://github.com/RiccardoCereghino/facet" rel="noopener">facet</a> · <a href="https://github.com/RiccardoCereghino/assay" rel="noopener">assay</a></dd></div>
-        <div class="pr" id="row-uptime" style="animation-delay:1.02s"><dt>Uptime</dt><dd id="uptime"></dd></div>
-        <div class="pr" style="animation-delay:1.08s"><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/riccardo-cereghino" rel="me noopener">linkedin.com/in/riccardo-cereghino</a></dd></div>
-        <div class="pr" style="animation-delay:1.14s"><dt>GitHub</dt><dd><a href="https://github.com/RiccardoCereghino" rel="me noopener">github.com/RiccardoCereghino</a></dd></div>
-        <div class="pr" style="animation-delay:1.2s"><dt>dev.to</dt><dd><a href="https://dev.to/riccardo_cereghino" rel="me noopener">dev.to/riccardo_cereghino</a></dd></div>
+        <div class="pr" style="animation-delay:.63s"><dt>Name</dt><dd><h1>Riccardo Cereghino</h1></dd></div>
+        <div class="pr" style="animation-delay:.66s"><dt>Location</dt><dd>Genoa, Italy</dd></div>
+        <div class="pr" style="animation-delay:.69s"><dt>Role</dt><dd>Platform &amp; Infrastructure Engineer</dd></div>
+        <div class="pr" style="animation-delay:.72s"><dt>Stack</dt><dd>Kubernetes · GitOps · Azure</dd></div>
+        <div class="pr" style="animation-delay:.75s"><dt>Languages</dt><dd>Go · Python · Bash</dd></div>
+        <div class="pr" style="animation-delay:.78s"><dt>Packages</dt><dd><a href="https://github.com/RiccardoCereghino/facet" rel="noopener">facet</a> · <a href="https://github.com/RiccardoCereghino/assay" rel="noopener">assay</a></dd></div>
+        <div class="pr" id="row-uptime" style="animation-delay:.81s"><dt>Uptime</dt><dd id="uptime"></dd></div>
+        <div class="pr" style="animation-delay:.84s"><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/riccardo-cereghino" rel="me noopener">linkedin.com/in/riccardo-cereghino</a></dd></div>
+        <div class="pr" style="animation-delay:.87s"><dt>GitHub</dt><dd><a href="https://github.com/RiccardoCereghino" rel="me noopener">github.com/RiccardoCereghino</a></dd></div>
+        <div class="pr" style="animation-delay:.9s"><dt>dev.to</dt><dd><a href="https://dev.to/riccardo_cereghino" rel="me noopener">dev.to/riccardo_cereghino</a></dd></div>
       </dl>
-      <div class="pr palette" style="animation-delay:1.26s" aria-hidden="true">
+      <div class="pr palette" style="animation-delay:.93s" aria-hidden="true">
         <span style="background:#1f2126"></span><span style="background:#4a2b20"></span><span style="background:#7c3a2d"></span><span style="background:#a85f2e"></span><span style="background:#f0b357"></span><span style="background:#ffd08a"></span><span style="background:#a6a9b0"></span><span style="background:#e8e9ec"></span>
       </div>
     </div>
@@ -236,7 +237,7 @@
     })();
   </script>
 
-  <p class="prompt prompt-end pr" style="animation-delay:1.32s">
+  <p class="prompt prompt-end pr" style="animation-delay:.96s">
     <span class="user">riccardo</span><span class="at">@</span><span class="user">cereghino.me</span>:~$&nbsp;<span class="cursor" aria-hidden="true"></span>
   </p>
 </main>
