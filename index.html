@@ -228,16 +228,26 @@
   </div>
 
   <script>
-    // Uptime since 2010-01-01 UTC in neofetch's long format, computed at
-    // render. Runs here, mid-parse, so the value is in place before first
-    // paint — the row ships empty and is never hardcoded. With JS off the
-    // <noscript> rule in the head hides the row rather than show a bare key.
+    // Uptime since 2010-01-01 UTC, computed at render. Runs here, mid-parse,
+    // so the value is in place before first paint — the row ships empty and is
+    // never hardcoded. With JS off the <noscript> rule in the head hides the
+    // row rather than show a bare key.
+    //
+    // Years come from real calendar arithmetic, not days/365.25: the epoch is
+    // 1 January, so whole years elapsed is just the difference in UTC year,
+    // and the remainder is measured from 1 January of the current year. Leap
+    // years therefore contribute their true length with no fudge factor and no
+    // drift. (Changing the epoch off 1 January would break this shortcut.)
     (function(){
-      var ms=Date.now()-Date.UTC(2010,0,1);
+      var now=Date.now();
+      var years=new Date(now).getUTCFullYear()-2010;
+      var ms=now-Date.UTC(2010+years,0,1);
       var d=Math.floor(ms/864e5);
       var h=Math.floor(ms%864e5/36e5);
       var m=Math.floor(ms%36e5/6e4);
-      document.getElementById('uptime').textContent=d+' days, '+h+' hours, '+m+' mins';
+      var unit=function(n,word){return n+' '+word+(n===1?'':'s')};
+      document.getElementById('uptime').textContent=
+        [unit(years,'year'),unit(d,'day'),unit(h,'hour'),unit(m,'min')].join(', ');
     })();
   </script>
 
