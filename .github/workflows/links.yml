@@ -1,0 +1,57 @@
+name: links
+
+# Deliberately NOT part of ci.yml. Outbound links break for reasons that have
+# nothing to do with the commit under review — an upstream outage should never
+# block a merge. Weekly, plus on demand.
+
+on:
+  schedule:
+    - cron: '17 6 * * 1' # Mondays, 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write # to file/update the report issue on failure
+
+jobs:
+  lychee:
+    name: outbound link check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check links
+        id: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # --exclude linkedin.com: LinkedIn answers 999 -> authwall to any
+          #   automated client (bot detection), so it can never be verified from
+          #   CI. The URL is asserted as a string by check_spec.py instead.
+          # --exclude ^data: the inline favicon is not a network resource.
+          args: >-
+            --no-progress
+            --include-verbatim
+            --exclude linkedin\.com
+            --exclude ^data:
+            --exclude ^https://cereghino\.me/$
+            index.html
+          output: ./lychee/out.md # explicit: the issue step below reads this path
+          fail: true
+          jobSummary: true
+
+      - name: Open an issue if links are broken
+        if: failure()
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: Broken outbound link(s) on the landing page
+          content-filepath: ./lychee/out.md
+          labels: bug
+
+# Excluded above and why:
+#   linkedin.com          -> 999 + authwall for all automation
+#   data:                 -> inline favicon, not a network fetch
+#   https://cereghino.me/ -> canonical/og:url; aspirational until the Pages
+#                            custom domain lands via RiccardoCereghino/edge#1,
+#                            so it 404s today by design. Drop this exclusion
+#                            once that applies — it then becomes a real check
+#                            that the domain is live.
