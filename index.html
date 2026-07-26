@@ -106,11 +106,12 @@
     margin-left:.15em;
     vertical-align:-.18em;
     background:var(--accent);
-    /* xterm's documented defaults: cursorOnTime 600ms, cursorOffTime 300ms.
-       Asymmetric on purpose — the block is present two thirds of the cycle, so
-       there is a third less flicker than a 50/50 blink. step-end keeps the
-       edges hard, the way a real terminal cursor behaves; no fading. */
-    animation:blink .9s step-end infinite;
+    /* Twice xterm's documented cycle (600ms on / 300ms off = 900ms), keeping
+       its 2:1 on-to-off ratio: 1.2s visible, 0.6s hidden. Slower than any
+       real terminal on purpose — a fast blink is the kind of repetitive
+       flicker that astigmatism makes tiring. step-end keeps the edges hard,
+       the way a terminal cursor behaves; no fading. */
+    animation:blink 1.8s step-end infinite;
   }
   @keyframes blink{0%{opacity:1}66.6%{opacity:0}}
   @keyframes reveal{from{opacity:0}50%,to{opacity:1}}
@@ -133,9 +134,14 @@
     letter-spacing:0;
     font-weight:700;
     color:var(--accent);
-    text-shadow:0 0 18px rgb(var(--accent-rgb)/.35);
+    /* No glow. An 18px halo of bright amber on near-black is textbook
+       halation — the high-contrast edge bleeds for anyone with astigmatism.
+       Do not reintroduce a text-shadow here. */
     user-select:none;
   }
+  /* Each logo line is its own .pr, so the monogram prints line by line on the
+     same 30ms cadence as the info rows instead of appearing as one block. */
+  .logo .pr{display:block}
   .sr-only{
     position:absolute;width:1px;height:1px;
     padding:0;margin:-1px;overflow:hidden;
@@ -193,14 +199,12 @@
   </p>
 
   <div class="fetch">
-    <div class="pr" style="animation-delay:.6s">
-      <pre class="logo" aria-hidden="true">
-██████╗  ██████╗
-██╔══██╗██╔════╝
-██████╔╝██║
-██╔══██╗██║
-██║  ██║╚██████╗
-╚═╝  ╚═╝ ╚═════╝</pre>
+    <div>
+      <!-- Lines are separate .pr blocks with no newlines between them: the line
+           breaks come from `display:block`, not from whitespace, so the reveal
+           cannot be broken by reformatting. Leading runs of spaces inside each
+           line are still significant and preserved by <pre>. -->
+      <pre class="logo" aria-hidden="true"><span class="pr" style="animation-delay:.6s">██████╗  ██████╗</span><span class="pr" style="animation-delay:.63s">██╔══██╗██╔════╝</span><span class="pr" style="animation-delay:.66s">██████╔╝██║</span><span class="pr" style="animation-delay:.69s">██╔══██╗██║</span><span class="pr" style="animation-delay:.72s">██║  ██║╚██████╗</span><span class="pr" style="animation-delay:.75s">╚═╝  ╚═╝ ╚═════╝</span></pre>
       <span class="sr-only">RC</span>
     </div>
 
