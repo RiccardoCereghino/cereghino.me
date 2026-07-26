@@ -5,27 +5,23 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Riccardo Cereghino — Platform &amp; Infrastructure Engineer</title>
 <meta name="description" content="Platform and infrastructure engineer working in Kubernetes and GitOps, currently writing about running a platform as a team of one.">
-<link rel="canonical" href="https://riccardocereghino.github.io/">
+<link rel="canonical" href="https://cereghino.me/">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#09090b">
 
-<!-- Open Graph: this is what LinkedIn, Slack and iMessage read for link previews. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Riccardo Cereghino">
 <meta property="og:title" content="Riccardo Cereghino — Platform &amp; Infrastructure Engineer">
 <meta property="og:description" content="Platform and infrastructure engineer working in Kubernetes and GitOps, currently writing about running a platform as a team of one.">
-<meta property="og:url" content="https://riccardocereghino.github.io/">
+<meta property="og:url" content="https://cereghino.me/">
 <meta property="og:locale" content="en_GB">
-<!--
-  Optional: LinkedIn only shows a large image card if og:image is an absolute URL
-  to a real raster file (PNG/JPG, 1200x630). A data: URI or inline SVG will not
-  work there. Drop an og.png next to this file and uncomment these two lines:
-
-  <meta property="og:image" content="https://riccardocereghino.github.io/og.png">
-  <meta property="og:image:alt" content="Riccardo Cereghino — Platform & Infrastructure Engineer">
-
-  Without it you still get a correct title + description preview.
--->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Riccardo Cereghino — Platform &amp; Infrastructure Engineer">
+<meta name="twitter:description" content="Platform and infrastructure engineer working in Kubernetes and GitOps, currently writing about running a platform as a team of one.">
+<!-- og:image note: LinkedIn only shows a large image card if og:image is an
+     absolute URL to a real raster file (PNG/JPG, 1200x630). A data: URI or
+     inline SVG will not work there. Drop og.png next to this file and add
+     og:image + og:image:alt. Without it you still get title + description. -->
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2309090B'/%3E%3Cpath d='M9 11l5 5-5 5' fill='none' stroke='%23F0B357' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Crect x='17' y='19.2' width='7' height='2.6' rx='1.3' fill='%23F0B357'/%3E%3C/svg%3E">
 
@@ -39,9 +35,10 @@
     --accent:rgb(var(--accent-rgb));
     --bg:#09090b;
     --fg:#e8e9ec;
+    --bright:#ffffff;
     --muted:#a6a9b0;
     --link:#d3d5da;
-    --rule:#1f2126;
+    --rule:#33363d;
   }
   *,*::before,*::after{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%}
@@ -51,7 +48,8 @@
     min-height:100svh;
     display:flex;
     align-items:center;
-    padding:clamp(1.5rem,6vw,5rem);
+    justify-content:center;
+    padding:clamp(1.25rem,5vw,4rem);
     overflow-x:hidden;
     background:var(--bg);
     color:var(--fg);
@@ -75,7 +73,7 @@
     opacity:.5;
     background-image:repeating-linear-gradient(180deg,rgba(255,255,255,.014) 0 1px,transparent 1px 3px);
   }
-  /* The single moving element on the page. */
+  /* The one ambient moving element, GPU-composited. */
   .scan{
     position:fixed;top:0;left:0;right:0;z-index:2;pointer-events:none;
     height:36vh;
@@ -93,89 +91,111 @@
     to{transform:translate3d(0,102vh,0)}
   }
 
-  main{position:relative;z-index:3;max-width:min(100%,46rem)}
+  main{position:relative;z-index:3;width:min(100%,58rem)}
 
-  .eyebrow{
-    display:flex;
-    align-items:center;
-    gap:.7rem;
-    margin:0 0 1.5rem;
-    font-size:.75rem;
-    letter-spacing:.16em;
-    text-transform:uppercase;
-    color:var(--accent);
-  }
-  .eyebrow::after{
-    content:"";
-    flex:1;
-    height:1px;
-    background:var(--rule);
-  }
-
-  h1{
-    margin:0;
-    /* Sized so the name holds one line from 320px up: 18 uppercase mono
-       characters at ~0.655em each must clear the padded width. */
-    font-size:clamp(1.125rem,6.1vw,3.5rem);
-    font-weight:700;
-    letter-spacing:.055em;
-    line-height:1.14;
-    text-transform:uppercase;
-    color:var(--fg);
-  }
-
-  .tagline{
-    margin:1.5rem 0 0;
-    max-width:46ch;
-    font-size:clamp(.875rem,2.6vw,1.0625rem);
-    line-height:1.75;
+  /* ---- prompt line: the page's one easter egg.
+     "neofetch" types itself once (CSS steps, no JS), then the output prints.
+     The only blinking cursor on the page is the one at the idle prompt at
+     the very bottom. ---- */
+  .prompt{
+    margin:0 0 2.2rem;
+    font-size:.9375rem;
     color:var(--muted);
-    text-wrap:pretty;
+    white-space:nowrap;
   }
+  .prompt .user{color:var(--accent);font-weight:700}
+  .prompt .at{color:var(--muted);font-weight:400}
+  .cmd{
+    display:inline-block;
+    width:0;
+    max-width:8ch;
+    overflow:hidden;
+    white-space:nowrap;
+    vertical-align:bottom;
+    color:var(--fg);
+    /* 8 chars over 600ms, straight away */
+    animation:type .6s steps(8,end) forwards;
+  }
+  @keyframes type{to{width:8ch}}
   .cursor{
     display:inline-block;
-    width:.5em;height:1.05em;
-    margin-left:.28em;
+    width:.55em;height:1.05em;
+    margin-left:.15em;
     vertical-align:-.18em;
     background:var(--accent);
-    animation:blink 1.15s step-end infinite;
+    animation:blink .5s step-end infinite;
   }
   @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+  @keyframes reveal{from{opacity:0}50%,to{opacity:1}}
+  /* terminal print: each line snaps in on its own inline delay, rebased onto
+     the 600ms type — whole body lands by 1.32s */
+  .pr{opacity:0;animation:reveal .01s linear forwards}
+  .prompt-end{margin:2.6rem 0 0}
 
-  nav{
-    display:flex;
-    flex-direction:column;
-    align-items:flex-start;
-    width:100%;
-    max-width:24rem;
-    margin-top:2.25rem;
-    border-top:1px solid var(--rule);
-  }
-  nav a{
-    display:flex;
+  .fetch{
+    display:grid;
+    grid-template-columns:auto 1fr;
     align-items:center;
-    gap:.75rem;
-    width:100%;
-    min-height:44px;
-    padding:.85rem 0;
+    gap:clamp(2rem,5vw,4rem);
+  }
+  .logo{
+    margin:0;
+    font-family:inherit;
+    font-size:clamp(1rem,1.9vw,1.35rem);
+    line-height:1;
+    letter-spacing:0;
+    font-weight:700;
+    color:var(--accent);
+    text-shadow:0 0 18px rgb(var(--accent-rgb)/.35);
+    user-select:none;
+  }
+  .sr-only{
+    position:absolute;width:1px;height:1px;
+    padding:0;margin:-1px;overflow:hidden;
+    clip:rect(0 0 0 0);white-space:nowrap;border:0;
+  }
+
+  .info{font-size:.9375rem;line-height:2.05}
+  dl{margin:0}
+  dt{display:inline;color:var(--accent)}
+  dt::after{content:": "}
+  dd{display:inline;margin:0;color:var(--fg)}
+  h1{margin:0;display:inline;font:inherit;font-weight:700;color:var(--bright)}
+
+  .info a{
     color:var(--link);
-    font-size:.9375rem;
     text-decoration:none;
     border-bottom:1px solid var(--rule);
+    /* the LinkedIn URL clears a 320px viewport by only a couple of px */
+    overflow-wrap:anywhere;
     transition:color .18s ease,border-color .18s ease;
   }
-  nav a svg{width:18px;height:18px;flex:none;color:var(--accent)}
-  nav a .arrow{margin-left:auto;color:var(--accent);opacity:.6;transition:transform .18s ease,opacity .18s ease}
-  nav a:hover,nav a:focus-visible{color:var(--accent);border-bottom-color:var(--accent)}
-  nav a:hover .arrow,nav a:focus-visible .arrow{opacity:1;transform:translate(3px,-3px)}
-  nav a:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+  .info a:hover,.info a:focus-visible{color:var(--accent);border-bottom-color:var(--accent)}
+  .info a:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+
+  .palette{display:flex;margin-top:1.5rem}
+  .palette span{width:2.1rem;height:1rem}
+
+  /* ---- mobile: stack, logo above the table, keys stay aligned ---- */
+  /* stack only when two columns genuinely can't fit */
+  @media (max-width:560px){
+    body{align-items:flex-start;padding-top:clamp(2rem,10vw,4rem)}
+    .fetch{grid-template-columns:1fr;gap:1.8rem}
+    .logo{font-size:clamp(.85rem,4vw,1.05rem)}
+    .prompt{font-size:.875rem;margin-bottom:1.6rem}
+    .info{font-size:.875rem}
+    .palette span{width:1.8rem}
+  }
 
   @media (prefers-reduced-motion:reduce){
     .scan{animation:none}
     .cursor{animation:none}
-    nav a,nav a .arrow{transition:none}
+    .cmd{animation:none;width:8ch}
+    .pr{animation:none;opacity:1}
+    .info a{transition:none}
   }
 </style>
+<noscript><style>#row-uptime{display:none}</style></noscript>
 </head>
 <body>
 
@@ -184,29 +204,58 @@
 <div class="scan" aria-hidden="true"></div>
 
 <main>
-  <p class="eyebrow" aria-hidden="true">Platform&nbsp;/&nbsp;Infrastructure</p>
+  <p class="prompt">
+    <span class="user">riccardo</span><span class="at">@</span><span class="user">cereghino.me</span>:~$&nbsp;<span class="cmd">neofetch</span>
+  </p>
 
-  <h1>Riccardo Cereghino</h1>
+  <div class="fetch">
+    <div class="pr" style="animation-delay:.6s">
+      <pre class="logo" aria-hidden="true">
+██████╗  ██████╗
+██╔══██╗██╔════╝
+██████╔╝██║
+██╔══██╗██║
+██║  ██║╚██████╗
+╚═╝  ╚═╝ ╚═════╝</pre>
+      <span class="sr-only">RC</span>
+    </div>
 
-  <p class="tagline">Platform and infrastructure engineer working in Kubernetes and GitOps, currently writing about running a platform as a team of one.<span class="cursor" aria-hidden="true"></span></p>
+    <div class="info">
+      <dl>
+        <div class="pr" style="animation-delay:.66s"><dt>Name</dt><dd><h1>Riccardo Cereghino</h1></dd></div>
+        <div class="pr" style="animation-delay:.72s"><dt>Location</dt><dd>Genoa, Italy</dd></div>
+        <div class="pr" style="animation-delay:.78s"><dt>Role</dt><dd>Platform &amp; Infrastructure Engineer</dd></div>
+        <div class="pr" style="animation-delay:.84s"><dt>Stack</dt><dd>Kubernetes · GitOps · Azure</dd></div>
+        <div class="pr" style="animation-delay:.9s"><dt>Languages</dt><dd>Go · Python · Bash</dd></div>
+        <div class="pr" style="animation-delay:.96s"><dt>Packages</dt><dd><a href="https://github.com/RiccardoCereghino/facet" rel="noopener">facet</a> · <a href="https://github.com/RiccardoCereghino/assay" rel="noopener">assay</a></dd></div>
+        <div class="pr" id="row-uptime" style="animation-delay:1.02s"><dt>Uptime</dt><dd id="uptime"></dd></div>
+        <div class="pr" style="animation-delay:1.08s"><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/riccardo-cereghino" rel="me noopener">linkedin.com/in/riccardo-cereghino</a></dd></div>
+        <div class="pr" style="animation-delay:1.14s"><dt>GitHub</dt><dd><a href="https://github.com/RiccardoCereghino" rel="me noopener">github.com/RiccardoCereghino</a></dd></div>
+        <div class="pr" style="animation-delay:1.2s"><dt>dev.to</dt><dd><a href="https://dev.to/riccardo_cereghino" rel="me noopener">dev.to/riccardo_cereghino</a></dd></div>
+      </dl>
+      <div class="pr palette" style="animation-delay:1.26s" aria-hidden="true">
+        <span style="background:#1f2126"></span><span style="background:#4a2b20"></span><span style="background:#7c3a2d"></span><span style="background:#a85f2e"></span><span style="background:#f0b357"></span><span style="background:#ffd08a"></span><span style="background:#a6a9b0"></span><span style="background:#e8e9ec"></span>
+      </div>
+    </div>
+  </div>
 
-  <nav aria-label="Profiles">
-    <a href="https://dev.to/riccardo_cereghino" rel="me noopener">
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x=".85" y="4.85" width="22.3" height="14.3" rx="3.2" fill="none" stroke="currentColor" stroke-width="1.5"/><text x="12" y="15.35" textLength="14.5" lengthAdjust="spacingAndGlyphs" text-anchor="middle" font-size="7.4" font-weight="700" fill="currentColor">DEV</text></svg>
-      dev.to
-      <span class="arrow" aria-hidden="true">↗</span>
-    </a>
-    <a href="https://github.com/RiccardoCereghino" rel="me noopener">
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6.1-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.3 2.8.1 3.2.9.8 1.3 1.9 1.3 3.1 0 4.7-2.8 5.7-5.5 6 .4.5.7 1.1.7 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
-      GitHub
-      <span class="arrow" aria-hidden="true">↗</span>
-    </a>
-    <a href="https://www.linkedin.com/in/riccardo-cereghino" rel="me noopener">
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.04a3.75 3.75 0 0 1 3.38-1.85c3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zm1.78 13.02H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
-      LinkedIn
-      <span class="arrow" aria-hidden="true">↗</span>
-    </a>
-  </nav>
+  <script>
+    // Uptime since 2010-01-01 UTC in neofetch's long format, computed at
+    // render. Runs here, mid-parse, so the value is in place before first
+    // paint — the row ships empty and is never hardcoded. With JS off the
+    // <noscript> rule in the head hides the row rather than show a bare key.
+    (function(){
+      var ms=Date.now()-Date.UTC(2010,0,1);
+      var d=Math.floor(ms/864e5);
+      var h=Math.floor(ms%864e5/36e5);
+      var m=Math.floor(ms%36e5/6e4);
+      document.getElementById('uptime').textContent=d+' days, '+h+' hours, '+m+' mins';
+    })();
+  </script>
+
+  <p class="prompt prompt-end pr" style="animation-delay:1.32s">
+    <span class="user">riccardo</span><span class="at">@</span><span class="user">cereghino.me</span>:~$&nbsp;<span class="cursor" aria-hidden="true"></span>
+  </p>
 </main>
 
 </body>
