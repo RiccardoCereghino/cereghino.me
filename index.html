@@ -88,6 +88,13 @@
   }
   .prompt .user{color:var(--accent);font-weight:700}
   .prompt .at{color:var(--muted);font-weight:400}
+  /* The prompt's user@host is a real, routable address, so it is a real mailto
+     link — but it must not look like one. Default link styling would break the
+     terminal illusion, and the colours already come from .user/.at. The
+     transparent border reserves the space so hover cannot shift the baseline. */
+  .prompt a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}
+  .prompt a:hover,
+  .prompt a:focus-visible{border-bottom-color:currentColor}
   .cmd{
     display:inline-block;
     width:0;
@@ -195,7 +202,7 @@
 
 <main>
   <p class="prompt">
-    <span class="user">riccardo</span><span class="at">@</span><span class="user">cereghino.me</span>:~$&nbsp;<span class="cmd">neofetch</span>
+    <a href="mailto:riccardo@cereghino.me"><span class="user">riccardo</span><span class="at">@</span><span class="user">cereghino.me</span></a>:~$&nbsp;<span class="cmd">neofetch</span>
   </p>
 
   <div class="fetch">
@@ -252,7 +259,7 @@
   </script>
 
   <p class="prompt prompt-end pr" style="animation-delay:.96s">
-    <span class="user">riccardo</span><span class="at">@</span><span class="user">cereghino.me</span>:~$&nbsp;<span class="cursor" aria-hidden="true"></span>
+    <a href="mailto:riccardo@cereghino.me"><span class="user">riccardo</span><span class="at">@</span><span class="user">cereghino.me</span></a>:~$&nbsp;<span class="cursor" aria-hidden="true"></span>
   </p>
 </main>
 

@@ -28,12 +28,16 @@ jobs:
           #   automated client (bot detection), so it can never be verified from
           #   CI. The URL is asserted as a string by check_spec.py instead.
           # --exclude ^data: the inline favicon is not a network resource.
+          #
+          # https://cereghino.me/ is NO LONGER excluded. It used to 404 by
+          # design while the canonical was aspirational; the Pages custom domain
+          # has since landed via RiccardoCereghino/edge#1, so the canonical now
+          # resolves here and checking it is a real test that the domain is up.
           args: >-
             --no-progress
             --include-verbatim
             --exclude linkedin\.com
             --exclude ^data:
-            --exclude ^https://cereghino\.me/$
             index.html
           output: ./lychee/out.md # explicit: the issue step below reads this path
           fail: true
@@ -50,8 +54,8 @@ jobs:
 # Excluded above and why:
 #   linkedin.com          -> 999 + authwall for all automation
 #   data:                 -> inline favicon, not a network fetch
-#   https://cereghino.me/ -> canonical/og:url; aspirational until the Pages
-#                            custom domain lands via RiccardoCereghino/edge#1,
-#                            so it 404s today by design. Drop this exclusion
-#                            once that applies — it then becomes a real check
-#                            that the domain is live.
+#
+# No longer excluded:
+#   https://cereghino.me/ -> the Pages custom domain landed via
+#                            RiccardoCereghino/edge#1, so the canonical
+#                            resolves and is now checked for real.
