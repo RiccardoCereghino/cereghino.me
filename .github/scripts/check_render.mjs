@@ -87,6 +87,20 @@ const PROBE = `(() => {
     distinctDtLefts: [...new Set(dts.map(d => Math.round(d.getBoundingClientRect().left)))].length,
     logoAboveInfo: l.bottom <= i.top + 1,
     logoLineHeight: cs(logo).lineHeight,
+    // The monogram must print line by line, not appear as one block, and must
+    // carry no glow — an amber halo on near-black bleeds for astigmatism.
+    logoTextShadow: cs(logo).textShadow,
+    logoLines: [...logo.querySelectorAll('.pr')].length,
+    logoDistinctDelays: new Set(
+      [...logo.querySelectorAll('.pr')].map(el => cs(el).animationDelay)).size,
+    // Block layout, not significant whitespace, must produce the line breaks:
+    // row spacing should equal line-height, otherwise stray newlines have crept
+    // back in and the art is double-spaced.
+    logoRowGaps: [...logo.querySelectorAll('.pr')]
+      .map(el => Math.round(el.getBoundingClientRect().top))
+      .slice(1).map((t, i, a) => t - [...logo.querySelectorAll('.pr')]
+        .map(el => Math.round(el.getBoundingClientRect().top))[i]),
+    cursorDuration: cs(cursor).animationDuration,
     logoFontSize: cs(logo).fontSize,
     nameColor: cs(q('h1')).color,
     scrollWidth: document.documentElement.scrollWidth,
@@ -196,6 +210,18 @@ for (const s of SCENARIOS) {
       check(s.name, 'logo line-height is 1',
         parseFloat(r.logoLineHeight) === parseFloat(r.logoFontSize),
         `${r.logoLineHeight} vs font ${r.logoFontSize}`);
+      check(s.name, 'logo has no glow', r.logoTextShadow === 'none', r.logoTextShadow);
+      check(s.name, 'logo draws line by line', r.logoLines > 1, `${r.logoLines} animated lines`);
+      check(s.name, 'each logo line has its own delay',
+        r.logoLines > 1 && r.logoDistinctDelays === r.logoLines,
+        `${r.logoDistinctDelays} distinct delays for ${r.logoLines} lines`);
+      check(s.name, 'logo not double-spaced',
+        r.logoRowGaps.every(g => Math.abs(g - parseFloat(r.logoLineHeight)) <= 1),
+        `gaps ${r.logoRowGaps.join(',')} vs line-height ${r.logoLineHeight}`);
+
+      // --- cursor is slow enough to be restful ---
+      check(s.name, 'cursor blink is not fast',
+        parseFloat(r.cursorDuration) >= 1.5, r.cursorDuration);
 
       // --- name is the highest-contrast text ---
       check(s.name, 'name renders pure white', r.nameColor === 'rgb(255, 255, 255)', r.nameColor);
