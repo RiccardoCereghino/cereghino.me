@@ -21,7 +21,8 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 const URL_UNDER_TEST = process.argv[2] || 'http://127.0.0.1:8765/index.html';
 const SHOT_DIR = process.argv[3] || null;
 const DEBUG_PORT = process.env.CDP_PORT || 9222;
-const EPOCH = Date.UTC(2010, 0, 1);
+const EPOCH_YEAR = 2010;
+const EPOCH = Date.UTC(EPOCH_YEAR, 0, 1);
 
 if (SHOT_DIR) mkdirSync(SHOT_DIR, { recursive: true });
 
@@ -182,13 +183,26 @@ for (const s of SCENARIOS) {
       const r = result.value;
       const HEADER = 'riccardo@cereghino.me:~$ neofetch';
 
-      // --- uptime: format AND epoch, so a wrong epoch cannot slip through ---
-      const m = /^(\d+) days, (\d+) hours, (\d+) mins$/.exec(r.uptime);
-      check(s.name, 'uptime matches neofetch long format', !!m, r.uptime);
+      // --- uptime: format AND calendar, so a wrong epoch or a days/365.25
+      //     approximation cannot slip through. Units are singularised, hence
+      //     the optional trailing s on each. ---
+      const m = /^(\d+) years?, (\d+) days?, (\d+) hours?, (\d+) mins?$/.exec(r.uptime);
+      check(s.name, 'uptime matches the long format', !!m, r.uptime);
       if (m) {
-        const expected = Math.floor((Date.now() - EPOCH) / 864e5);
-        check(s.name, 'uptime days match 2010-01-01 epoch',
-          Math.abs(Number(m[1]) - expected) <= 1, `page=${m[1]} expected=${expected}`);
+        const now = Date.now();
+        const expYears = new Date(now).getUTCFullYear() - EPOCH_YEAR;
+        const expDays = Math.floor((now - Date.UTC(EPOCH_YEAR + expYears, 0, 1)) / 864e5);
+        check(s.name, 'uptime years match the calendar',
+          Number(m[1]) === expYears, `page=${m[1]} expected=${expYears}`);
+        check(s.name, 'uptime days match 1 January of this year',
+          Math.abs(Number(m[2]) - expDays) <= 1, `page=${m[2]} expected=${expDays}`);
+        // years+days must recompose to the plain day count since the epoch —
+        // this is what catches a 365.25-style approximation, which drifts.
+        const absFromParts =
+          Math.floor((Date.UTC(EPOCH_YEAR + Number(m[1]), 0, 1) - EPOCH) / 864e5) + Number(m[2]);
+        const absDirect = Math.floor((now - EPOCH) / 864e5);
+        check(s.name, 'years+days recompose to the absolute day count',
+          Math.abs(absFromParts - absDirect) <= 1, `parts=${absFromParts} direct=${absDirect}`);
       }
 
       // --- exactly one cursor, at the idle prompt ---

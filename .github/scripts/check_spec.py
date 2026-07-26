@@ -142,14 +142,20 @@ def main():
         doc.uptime_dd_text.strip() == "" and doc.uptime_dd_children == 0,
         repr(doc.uptime_dd_text.strip()),
     )
-    # any "<N> days, <N> hours" literal anywhere in source, comments included
-    literal = re.search(r"\d+\s*days\s*,\s*\d+\s*hours", src)
+    # A hardcoded value looks like two or more comma-joined "<N> <unit>" pairs.
+    # Matching a single pair would false-positive on prose in the comments
+    # (e.g. "counted as 366 days"), which is why the pair is required.
+    literal = re.search(
+        r"\d+\s*(?:years?|days?|hours?)\s*,\s*\d+\s*(?:days?|hours?|mins?)", src)
     check(
         "no hardcoded uptime literal in source",
         literal is None,
         literal.group(0) if literal else "",
     )
-    check("uptime computed from 2010-01-01", "Date.UTC(2010,0,1)" in src)
+    # Epoch year only. Whether the arithmetic is *correct* is not a job for a
+    # regex — check_uptime.mjs executes the shipped algorithm against real
+    # leap-year boundaries instead.
+    check("uptime computed from a 2010 epoch", "Date.UTC(2010" in src)
 
     # ---- the noscript coupling --------------------------------------------
     # If the row id is renamed, the <noscript> rule silently stops working and

@@ -24,8 +24,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - name: Check locked spec properties
         run: python3 .github/scripts/check_spec.py
+
+      # Executes the uptime IIFE lifted straight out of index.html against a
+      # stubbed clock, so it tests the shipped code at real leap boundaries.
+      # No browser, fully deterministic. Worth its own step: a days/365.25
+      # approximation renders an identical string on all but 15 days in 30
+      # years, so checking "today" in the render job proves nothing.
+      - name: Check the uptime arithmetic
+        run: node .github/scripts/check_uptime.mjs
 
   html:
     name: html validity
