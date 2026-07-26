@@ -91,7 +91,21 @@ const PROBE = `(() => {
     nameColor: cs(q('h1')).color,
     scrollWidth: document.documentElement.scrollWidth,
     innerWidth: window.innerWidth,
-    decorativeHidden: ['.grain', '.lines', '.scan'].every(s => q(s).getAttribute('aria-hidden') === 'true'),
+    // Derived from what is actually there rather than a hardcoded list, so
+    // adding or removing a background layer does not silently skip the check.
+    decorativeCount: document.querySelectorAll('body > div').length,
+    decorativeHidden: [...document.querySelectorAll('body > div')]
+      .every(d => d.getAttribute('aria-hidden') === 'true'),
+    // Anything animating forever. v1 swept an accent gradient down the page
+    // every 17s and it read as a yellow line crawling downward; it was removed
+    // on sight. The idle cursor blink is the only ambient motion allowed.
+    infiniteAnimations: [...document.querySelectorAll('*')]
+      .filter(el => {
+        const s = cs(el);
+        return s.animationName !== 'none' &&
+          s.animationIterationCount.split(',').some(v => v.trim() === 'infinite');
+      })
+      .map(el => (el.getAttribute('class') || el.tagName.toLowerCase()) + ':' + cs(el).animationName),
     linksHaveText: [...document.querySelectorAll('a')].every(a => a.textContent.trim().length > 0),
   };
 })()`;
@@ -187,8 +201,19 @@ for (const s of SCENARIOS) {
       check(s.name, 'name renders pure white', r.nameColor === 'rgb(255, 255, 255)', r.nameColor);
 
       // --- a11y basics ---
+      check(s.name, 'decorative layers present', r.decorativeCount > 0, `${r.decorativeCount} layers`);
       check(s.name, 'decorative layers aria-hidden', r.decorativeHidden);
       check(s.name, 'every link has text', r.linksHaveText);
+
+      // --- no ambient motion beyond the idle cursor ---
+      if (s.rm) {
+        check(s.name, 'nothing animates under reduced motion',
+          r.infiniteAnimations.length === 0, r.infiniteAnimations.join(', '));
+      } else {
+        check(s.name, 'only the idle cursor animates forever',
+          r.infiniteAnimations.length === 1 && r.infiniteAnimations[0].endsWith(':blink'),
+          r.infiniteAnimations.join(', ') || 'none found');
+      }
 
       if (s.rm) {
         // fully static: nothing animating, everything already in final state
